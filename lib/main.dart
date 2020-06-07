@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:section4_flutter/widgets/new_transaction.dart';
 import 'package:section4_flutter/widgets/transaction_list.dart';
 import './widgets/transaction_list.dart';
@@ -31,6 +32,14 @@ import './widgets/chart.dart';
 //https://medium.com/rive/building-a-water-tracking-app-with-flare-flutter-f03de436dba3
 
 void main() {
+//  //used to force device to only use portrait mode
+//  WidgetsFlutterBinding.ensureInitialized();
+//  SystemChrome.setPreferredOrientations(
+//    [
+//      DeviceOrientation.portraitUp,
+//      DeviceOrientation.portraitDown,
+//    ],
+//  );
   runApp(MyApp());
 }
 
@@ -43,6 +52,15 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.purple,
         accentColor: Colors.amber,
         fontFamily: 'Quicksand',
+        errorColor: Colors.red,
+        textTheme: ThemeData.light().textTheme.copyWith(
+              headline6: TextStyle(
+                fontFamily: 'Quicksand',
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+              button: TextStyle(color: Colors.white),
+            ),
       ),
       home: MyHomePage(),
     );
@@ -55,45 +73,67 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
   final List<Transaction> _userTransactions = [
-//    Transaction(
-//      id: 't1',
-//      title: 'New shoes',
-//      amount: 34.43,
-//      date: DateTime.now(),
-//    ),
-//    Transaction(
-//      id: 't2',
-//      title: 'Groceries',
-//      amount: 90.31,
-//      date: DateTime.now(),
-//    ),
-//    Transaction(
-//      id: 't3',
-//      title: 'Drone',
-//      amount: 534.43,
-//      date: DateTime.now(),
-//    ),
-//    Transaction(
-//      id: 't4',
-//      title: 'Amazon',
-//      amount: 50.12,
-//      date: DateTime.now(),
-//    ),
-//    Transaction(
-//      id: 't5',
-//      title: 'Disney',
-//      amount: 50.21,
-//      date: DateTime.now(),
-//    ),
-//    Transaction(
-//      id: 't6',
-//      title: 'Desktop computer',
-//      amount: 80.56,
-//      date: DateTime.now(),
-//    ),
+    Transaction(
+      id: 't1',
+      title: 'New shoes',
+      amount: 34.43,
+      date: DateTime.now(),
+    ),
+    Transaction(
+      id: 't2',
+      title: 'Groceries',
+      amount: 90.31,
+      date: DateTime.now(),
+    ),
+    Transaction(
+      id: 't3',
+      title: 'Drone',
+      amount: 534.43,
+      date: DateTime.now(),
+    ),
+    Transaction(
+      id: 't4',
+      title: 'Amazon',
+      amount: 50.12,
+      date: DateTime.now(),
+    ),
+    Transaction(
+      id: 't5',
+      title: 'Disney',
+      amount: 50.21,
+      date: DateTime.now(),
+    ),
+    Transaction(
+      id: 't6',
+      title: 'Desktop computer',
+      amount: 80.56,
+      date: DateTime.now(),
+    ),
+    Transaction(
+      id: 't7',
+      title: 'Cat treats',
+      amount: 143.20,
+      date: DateTime.now(),
+    ),
+    Transaction(
+      id: 't8',
+      title: 'Tokyo trip',
+      amount: 2198.21,
+      date: DateTime.now(),
+    ),
+    Transaction(
+      id: 't9',
+      title: 'More disney merchandise?',
+      amount: 268.53,
+      date: DateTime.now(),
+    ),
+    Transaction(
+      id: 't10',
+      title: 'Playstation 5',
+      amount: 520.14,
+      date: DateTime.now(),
+    ),
   ];
 
   List<Transaction> get _recentTransactions {
@@ -108,11 +148,12 @@ class _MyHomePageState extends State<MyHomePage> {
     ).toList(); //every list has default function/method called where
   }
 
-  void _addNewTransaction(String txTitle, double txAmount) {
+  void _addNewTransaction(
+      String txTitle, double txAmount, DateTime chosenDate) {
     final newTransaction = Transaction(
       title: txTitle,
       amount: txAmount,
-      date: DateTime.now(),
+      date: chosenDate,
       id: DateTime.now().toString(),
     );
     setState(() {
@@ -135,34 +176,55 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void _deleteTransaction(String id) {
+    setState(() {
+      _userTransactions.removeWhere((tx) => tx.id == id);
+    });
+  }
+
+  bool _showChart = false;
+
   @override
   Widget build(BuildContext context) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final appBar = AppBar(
+      title: Text('Personal expenses app'),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () => _startAddNewTransaction(context),
+        ),
+      ],
+    );
     return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text('Personal expenses app'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () => _startAddNewTransaction(context),
+      appBar: appBar,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Row( //if(isLandscape) //can also use ternary expression
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Show chart'),
+              Switch(value: _showChart, onChanged:(val){
+                setState(() {
+                  _showChart = val;
+                });
+              }),
+            ],
+          ),
+          _showChart? Container(
+            child: Chart(_recentTransactions),
+          ):
+          Expanded(
+//            height:
+//            400,
+//              (MediaQuery.of(context).size.height -
+//                      appBar.preferredSize.height -
+//                  164 -
+//                      MediaQuery.of(context).padding.top),
+            child: TransactionList(_userTransactions, _deleteTransaction),
           ),
         ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Chart(_recentTransactions),
-//            Card(
-//              child: Container(
-//                width: double.infinity,
-//                child: Text('chart'),
-//              ),
-//              elevation: 20,
-//            ),
-            TransactionList(_userTransactions),
-          ],
-        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
