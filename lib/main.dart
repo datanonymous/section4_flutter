@@ -186,6 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    //can use isLandscape to render items if the phone is in landscape using ternary exp or if(isLandscape)
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     final appBar = AppBar(
       title: Text('Personal expenses app'),

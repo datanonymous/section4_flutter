@@ -36,9 +36,6 @@ class TransactionList extends StatelessWidget {
                   onLongPress: () {
                     print('long press: ' + transactions[index].title);
                     print('index of item: ' + index.toString());
-//              transactions.removeAt(index);
-//              userTransactions.removeTransaction(index);
-//              asdf();
                   },
                   child: Card(
                     elevation: 10,
